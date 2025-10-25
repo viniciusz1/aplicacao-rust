@@ -5,23 +5,20 @@ on:
     branches: ["main"]
 
 env:
-  IMAGE_NAME: forgejo.seudominio.com/seu-usuario/sua-imagem  # ajuste pro seu registry real
-  TAG: latest
+  IMAGE_NAME: registry.seudominio.com/seu-usuario/sua-imagem  # ajuste pro seu registry
+  TAG_SHA: ${{ github.sha }}
+  TAG_LATEST: latest
 
 jobs:
   build-and-maybe-push:
     runs-on: [docker]
 
-    # força a job rodar dentro de uma imagem que tem bash
     container:
-      image: docker:27-dind-rootless
+      image: docker:27-git
 
     steps:
-      - name: Install deps (bash, git)
-        run: |
-          apk add --no-cache bash git
-
       - name: Checkout code
+        shell: bash
         run: |
           git clone ${{ github.server_url }}/${{ github.repository }} .
           git checkout ${{ github.sha }}
@@ -37,15 +34,20 @@ jobs:
           fi
 
       - name: Build Docker image
+        shell: bash
         run: |
-          docker build -t $IMAGE_NAME:$TAG .
+          docker build -t $IMAGE_NAME:$TAG_SHA -t $IMAGE_NAME:$TAG_LATEST .
 
       - name: Login in registry
         if: steps.setflag.outputs.do_push == 'true'
+        shell: bash
         run: |
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login forgejo.seudominio.com -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+          echo "${{ secrets.REGISTRY_PASSWORD }}" \
+          | docker login registry.seudominio.com -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
       - name: Push image
         if: steps.setflag.outputs.do_push == 'true'
+        shell: bash
         run: |
-          docker push $IMAGE_NAME:$TAG
+          docker push $IMAGE_NAME:$TAG_SHA
+          docker push $IMAGE_NAME:$TAG_LATEST
