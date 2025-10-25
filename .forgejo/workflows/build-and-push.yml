@@ -12,16 +12,23 @@ on:
     branches: ["main"]
 
 env:
-  IMAGE_NAME: forgejo.seudominio.com/seu-usuario/sua-imagem    # TODO ajustar
-  TAG: latest                                                 # ou usa SHA, versão etc.
+  # Ajusta para o nome do repositório de container dentro do Forgejo.
+  # Formato típico: <host>/<owner>/<repo>
+  IMAGE_NAME: localhost:3000/forgejo/aplicacao-rust
+  TAG: latest  # você pode trocar pra runid, SHA etc.
 
 jobs:
   build-and-maybe-push:
-    runs-on: [docker]  # ou o label que seu runner 
-    # container:
-    #       image: docker:27.0.2-cli  # imagem oficial com Docker CL
-    #       volumes:
-    #         - /var/run/docker.sock:/var/run/docker.sock
+    runs-on: [docker]
+
+    # Este container é onde os steps vão rodar.
+    # Ele já vem com o binário `docker`.
+    # A gente monta o socket pra falar com o Docker "de verdade" do runner.
+    container:
+      image: docker:27.0.2-cli
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
