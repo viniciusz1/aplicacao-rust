@@ -5,22 +5,13 @@ on:
     branches: ["main"]
 
 env:
-  IMAGE_NAME: forgejo.seudominio.com/seu-usuario/sua-imagem  # ajuste pro seu registry real
-  TAG: latest
+  IMAGE_NAME: forgejo.seudominio.com/seu-usuario/sua-imagem # TODO ajustar
+  TAG: latest # ou usa SHA, versão etc.
 
 jobs:
   build-and-maybe-push:
     runs-on: [docker]
-
-    # força a job rodar dentro de uma imagem que tem bash
-    container:
-      image: docker:27-dind-rootless
-
     steps:
-      - name: Install deps (bash, git)
-        run: |
-          apk add --no-cache bash git
-
       - name: Checkout code
         run: |
           git clone ${{ github.server_url }}/${{ github.repository }} .
@@ -28,7 +19,6 @@ jobs:
 
       - name: Set DO_PUSH flag (push só na branch main)
         id: setflag
-        shell: bash
         run: |
           if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
             echo "do_push=true" >> $GITHUB_OUTPUT
@@ -43,7 +33,7 @@ jobs:
       - name: Login in registry
         if: steps.setflag.outputs.do_push == 'true'
         run: |
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login forgejo.seudominio.com -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login localhost:3000 -u "${{ secrets.REGISTRY_USER }}" --password-stdin
 
       - name: Push image
         if: steps.setflag.outputs.do_push == 'true'
