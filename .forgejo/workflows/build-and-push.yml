@@ -1,35 +1,18 @@
-name: Build and Publish Docker Image
-
-on:
-  # 1) Builda sempre que tiver PR contra main (valida se compila)
-  # pull_request:
-  #   branches: ["main"]
-  #   types: [opened, synchronize, reopened]
-
-  # 2) Depois que o PR for mergeado, isso vira um commit em main.
-  # Nesse push na main a gente publica.
-  push:
-    branches: ["main"]
-
-env:
-  # Ajusta para o nome do repositório de container dentro do Forgejo.
-  # Formato típico: <host>/<owner>/<repo>
-  IMAGE_NAME: localhost:3000/forgejo/aplicacao-rust
-  TAG: latest  # você pode trocar pra runid, SHA etc.
-
 jobs:
   build-and-maybe-push:
     runs-on: [docker]
 
-    # Este container é onde os steps vão rodar.
-    # Ele já vem com o binário `docker`.
-    # A gente monta o socket pra falar com o Docker "de verdade" do runner.
     container:
-      image: docker:27.0.2-cli
+      image: node:20-alpine
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
 
     steps:
+      - name: Instalar Docker CLI dentro do container
+        run: |
+          apk add --no-cache docker-cli
+        shell: sh
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -46,16 +29,16 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t $IMAGE_NAME:$TAG .
-        shell: bash
+        shell: sh
 
       - name: Login in registry
         if: steps.setflag.outputs.do_push == 'true'
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login localhost:3000 -u "${{ secrets.REGISTRY_USER }}" --password-stdin
-        shell: bash
+        shell: sh
 
       - name: Push image
         if: steps.setflag.outputs.do_push == 'true'
         run: |
           docker push $IMAGE_NAME:$TAG
-        shell: bash
+        shell: sh
