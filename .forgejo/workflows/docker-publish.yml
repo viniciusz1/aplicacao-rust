@@ -16,11 +16,29 @@ env:
 jobs:
   build-and-push:
     runs-on: docker
-    
+
     steps:
-      - name: Checkout code
-        # Mantemos esta, pois é a forma padrão de obter o código
-        uses: actions/checkout@v4
+      - name: Checkout code (Manual)
+
+        run: |
+            echo "Cleaning workspace..."
+            # Limpa o diretório de trabalho (sem apagar o próprio diretório)
+            find . -mindepth 1 -delete
+
+            echo "Cloning repository..."
+            # Configura o git para usar o token do runner para autenticação HTTPS
+            # O Forgejo/Gitea injeta o token como secrets.GITHUB_TOKEN
+            # Este token é usado APENAS para o git clone
+            git config --global http.extraHeader "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+            
+            # Clona o repositório específico (branch e profundidade 1)
+            # para dentro do diretório de trabalho atual ('.')
+            # Usamos as variáveis do contexto do Forgejo para a URL e o branch
+            git clone --depth=1 --branch ${{ github.ref_name }} ${{ github.server_url }}/${{ github.repository }} .
+            
+            # Remove a configuração de autenticação para não vazar
+            git config --global --unset http.extraHeader
+          shell: sh
 
       - name: Login to Forgejo Registry
         # Substitui a 'docker/login-action'
