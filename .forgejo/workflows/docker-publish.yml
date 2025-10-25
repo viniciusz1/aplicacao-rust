@@ -1,53 +1,38 @@
 name: Build and Publish Docker Image
 
 on:
-  # 1) Builda sempre que tiver PR contra main (valida se compila)
-  # pull_request:
-  #   branches: ["main"]
-  #   types: [opened, synchronize, reopened]
-
-  # 2) Depois que o PR for mergeado, isso vira um commit em main.
-  # Nesse push na main a gente publica.
   push:
     branches: ["main"]
 
 env:
-  IMAGE_NAME: forgejo.seudominio.com/seu-usuario/sua-imagem # TODO ajustar
-  TAG: latest # ou usa SHA, versão etc.
+  # Use o registry do seu Forgejo. Geralmente é o próprio domínio.
+  REGISTRY: localhost:3000
+  IMAGE_NAME: forgejo/aplicacao-rust # O registry será prefixado automaticamente
 
 jobs:
-  build-and-maybe-push:
-    runs-on: docker # ou o label que seu r
-    container:
-      image: docker:latest
-      volumes: # <-- DESCOMENTE ISSO
-        - /var/run/docker.sock:/var/run/docker.sock # <-- E ISSO
+  build-and-push:
+    runs-on: docker # ou o label do seu runner com Docker instalado
+    
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # <-- VOCÊ PRECISA DISSO!
-      - name: Set DO_PUSH flag (push só na branch main)
-        id: setflag
-        run: |
-          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            echo "do_push=true" >> $GITHUB_OUTPUT
-          else
-            echo "do_push=false" >> $GITHUB_OUTPUT
-          fi
-        shell: sh
+        uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: |
-          docker build -t $IMAGE_NAME:$TAG .
-        shell: sh
+      - name: Login to Forgejo Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Login in registry
-        if: steps.setflag.outputs.do_push == 'true'
-        run: |
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login localhost:3000 -u "${{ secrets.REGISTRY_USER }}" --password-stdin
-        shell: sh
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Push image
-        if: steps.setflag.outputs.do_push == 'true'
-        run: |
-          docker push $IMAGE_NAME:$TAG
-        shell: sh
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile # Opcional, se o nome for Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest # Monta a tag completa
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
