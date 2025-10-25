@@ -6,7 +6,7 @@ on:
 
 env:
   # CORRIGIDO: Removido o "http://"
-  REGISTRY: server:3000
+  REGISTRY: http://server:3000
   IMAGE_NAME: forgejo/aplicacao-rust
   
   # A tag completa está correta
