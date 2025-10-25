@@ -13,11 +13,11 @@ on:
 
 env:
   IMAGE_NAME: forgejo.seudominio.com/seu-usuario/sua-imagem    # TODO ajustar
-  TAG: latest                                                 # ou usa SHA, versão etc
+  TAG: latest                                                 # ou usa SHA, versão etc.
 
 jobs:
   build-and-maybe-push:
-    runs-on: [self-hosted] 
+    runs-on: [docker] 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -1,0 +1,8 @@
+name: Test Runner
+on: [push]
+jobs:
+  test:
+    runs-on: docker
+    steps:
+      - name: Hello World
+        run: echo "Runner está funcionando!"
