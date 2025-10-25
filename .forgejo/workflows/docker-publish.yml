@@ -5,12 +5,11 @@ on:
     branches: ["main"]
 
 env:
-  # ⚠️ ATENÇÃO: Corrigido de 'localhost' para 'server'.
-  # 'localhost' não funciona de dentro do container do job.
+  # CORRIGIDO: Removido o "http://"
   REGISTRY: server:3000
   IMAGE_NAME: forgejo/aplicacao-rust
   
-  # Criamos uma tag completa para facilitar
+  # A tag completa está correta
   IMAGE_TAG: server:3000/forgejo/aplicacao-rust:latest
 
 jobs:
@@ -19,45 +18,30 @@ jobs:
 
     steps:
       - name: Checkout code (Manual)
-
         run: |
             echo "Cleaning workspace..."
-            # Limpa o diretório de trabalho (sem apagar o próprio diretório)
             find . -mindepth 1 -delete
 
             echo "Cloning repository..."
-            # Configura o git para usar o token do runner para autenticação HTTPS
-            # O Forgejo/Gitea injeta o token como secrets.GITHUB_TOKEN
-            # Este token é usado APENAS para o git clone
             git config --global http.extraHeader "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
-            
-            # Clona o repositório específico (branch e profundidade 1)
-            # para dentro do diretório de trabalho atual ('.')
-            # Usamos as variáveis do contexto do Forgejo para a URL e o branch
             git clone --depth=1 --branch ${{ github.ref_name }} ${{ github.server_url }}/${{ github.repository }} .
-            
-            # Remove a configuração de autenticação para não vazar
             git config --global --unset http.extraHeader
         shell: sh
 
       - name: Login to Forgejo Registry
-        # Substitui a 'docker/login-actio
         run: |
-          echo "Logging into ${{ variables.REGISTRY_SERVER_URL }}..."
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ variables.REGISTRY_SERVER_URL }} -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+          # CORRIGIDO: Usando env.REGISTRY em vez de variables.REGISTRY_SERVER_URL
+          echo "Logging into ${{ env.REGISTRY }}..."
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY }} -u "${{ secrets.REGISTRY_USER }}" --password-stdin
         shell: sh
 
       - name: Build Docker image
-        # Substitui a 'docker/build-push-action' (parte de build
-        # Removemos o 'setup-buildx' e usamos o build padrão
         run: |
           echo "Building image ${{ env.IMAGE_TAG }}..."
           docker build -t ${{ env.IMAGE_TAG }} -f ./Dockerfile .
         shell: sh
 
       - name: Push image
-        # Substitui a 'docker/build-push-action' (parte de push)
-        # A lógica 'if' garante que o push só ocorre no branch 'main'
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           echo "Pushing image ${{ env.IMAGE_TAG }}..."
