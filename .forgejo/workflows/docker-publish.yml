@@ -4,23 +4,23 @@ on:
   push:
     branches: ["main"]
 
-env:
-  # CORRIGIDO: Removido o "http://"
-  REGISTRY: server:3000
-  IMAGE_NAME: forgejo/aplicacao-rust
-  
-  # A tag completa está correta
-  IMAGE_TAG: http://server:3000/forgejo/aplicacao-rust:latest
+# O bloco 'env' foi movido daqui...
 
 jobs:
   build-and-push:
     runs-on: docker
 
+    # ...para dentro do job, para que possamos usar 'variables'
+    env:
+      IMAGE_NAME: forgejo/aplicacao-rust
+      # A tag agora é construída usando a variável do UI
+      IMAGE_TAG: ${{ variables.REGISTRY_SERVER_URL }}/${{ env.IMAGE_NAME }}:latest
+
     steps:
       - name: Checkout code (Manual)
         run: |
             echo "Cleaning workspace..."
-            find . -mindepth 1 -delete
+            find . -mindth 1 -delete
 
             echo "Cloning repository..."
             git config --global http.extraHeader "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
@@ -28,14 +28,29 @@ jobs:
             git config --global --unset http.extraHeader
         shell: sh
 
+      # --- NOVO PASSO ADICIONADO ---
+      - name: Wait for Docker (dind)
+        run: |
+          echo "Waiting for Docker daemon (dind) to start..."
+          # Espera em loop até que o comando 'docker info'
+          # funcione, indicando que o daemon está pronto.
+          while ! docker info > /dev/null 2>&1; do
+            echo -n "."
+            sleep 1
+          done
+          echo "Docker daemon is ready!"
+        shell: sh
+
       - name: Login to Forgejo Registry
         run: |
+          # Restaurado conforme sua solicitação
           echo "Logging into ${{ variables.REGISTRY_SERVER_URL }}..."
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ variables.REGISTRY_SERVER_URL }} -u "${{ secrets.REGISTRY_USER }}" --password-stdin
         shell: sh
 
       - name: Build Docker image
         run: |
+          # Esta etapa agora usa a IMAGE_TAG construída com sua variável
           echo "Building image ${{ env.IMAGE_TAG }}..."
           docker build -t ${{ env.IMAGE_TAG }} -f ./Dockerfile .
         shell: sh
@@ -46,3 +61,4 @@ jobs:
           echo "Pushing image ${{ env.IMAGE_TAG }}..."
           docker push ${{ env.IMAGE_TAG }}
         shell: sh
+
