@@ -17,14 +17,8 @@ env:
 
 jobs:
   build-and-maybe-push:
-    runs-on: docker # ou o label que seu r
-    container:
-      image: docker:latest
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
+    runs-on: docker
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v4
 
       - name: Set DO_PUSH flag (push só na branch main)
         id: setflag
@@ -34,21 +28,17 @@ jobs:
           else
             echo "do_push=false" >> $GITHUB_OUTPUT
           fi
-        shell: sh
 
       - name: Build Docker image
         run: |
           docker build -t $IMAGE_NAME:$TAG .
-        shell: sh
 
       - name: Login in registry
         if: steps.setflag.outputs.do_push == 'true'
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login localhost:3000 -u "${{ secrets.REGISTRY_USER }}" --password-stdin
-        shell: sh
 
       - name: Push image
         if: steps.setflag.outputs.do_push == 'true'
         run: |
           docker push $IMAGE_NAME:$TAG
-        shell: sh
