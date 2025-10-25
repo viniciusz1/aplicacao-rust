@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 async fn hello_world() -> &'static str {
     "Hello, world!"
 }
-//
+///
 #[tokio::main]
 async fn main() {
     // cria a aplicação com uma rota GET /
