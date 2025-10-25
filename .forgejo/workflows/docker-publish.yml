@@ -32,7 +32,7 @@ jobs:
         run: |
           # CORRIGIDO: Usando env.REGISTRY em vez de variables.REGISTRY_SERVER_URL
           echo "Logging into ${{ env.REGISTRY }}..."
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY }} -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login http://${{ env.REGISTRY }} -u "${{ secrets.REGISTRY_USER }}" --password-stdin
         shell: sh
 
       - name: Build Docker image
