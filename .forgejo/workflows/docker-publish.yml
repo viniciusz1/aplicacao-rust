@@ -41,7 +41,7 @@ jobs:
         shell: sh
 
       - name: Login to Forgejo Registry
-        # Substitui a 'docker/login-action
+        # Substitui a 'docker/login-actio
         run: |
           echo "Logging into ${{ env.REGISTRY }}..."
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ env.REGISTRY }} -u "${{ secrets.REGISTRY_USER }}" --password-stdin
