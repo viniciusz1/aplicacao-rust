@@ -17,7 +17,7 @@ env:
 
 jobs:
   build-and-maybe-push:
-    runs-on: docker  # ou o label que seu runner usa
+    runs-on: docker  # ou o label que seu runner us
 
     steps:
       - name: Checkout code
