@@ -16,7 +16,6 @@ jobs:
         run: |
           git clone ${{ github.server_url }}/${{ github.repository }} .
           git checkout ${{ github.sha }}
-        shell: bash
 
       - name: Set DO_PUSH flag (push só na branch main)
         id: setflag
@@ -26,21 +25,17 @@ jobs:
           else
             echo "do_push=false" >> $GITHUB_OUTPUT
           fi
-        shell: bash
 
       - name: Build Docker image
         run: |
           docker build -t $IMAGE_NAME:$TAG .
-        shell: bash
 
       - name: Login in registry
         if: steps.setflag.outputs.do_push == 'true'
         run: |
           echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login localhost:3000 -u "${{ secrets.REGISTRY_USER }}" --password-stdin
-        shell: bash
 
       - name: Push image
         if: steps.setflag.outputs.do_push == 'true'
         run: |
           docker push $IMAGE_NAME:$TAG
-        shell: bash
