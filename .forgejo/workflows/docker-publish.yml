@@ -20,7 +20,6 @@ jobs:
       - name: Checkout code (Manual)
         run: |
             echo "Cleaning workspace..."
-            find . -mindth 1 -delete
 
             echo "Cloning repository..."
             git config --global http.extraHeader "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
