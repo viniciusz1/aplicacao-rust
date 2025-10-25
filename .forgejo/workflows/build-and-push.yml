@@ -18,10 +18,10 @@ env:
 jobs:
   build-and-maybe-push:
     runs-on: [docker]  # ou o label que seu runner 
-    container:
-          image: docker:27.0.2-cli  # imagem oficial com Docker CL
-          volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
+    # container:
+    #       image: docker:27.0.2-cli  # imagem oficial com Docker CL
+    #       volumes:
+    #         - /var/run/docker.sock:/var/run/docker.sock
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
