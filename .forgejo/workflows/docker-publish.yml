@@ -17,11 +17,10 @@ env:
 
 jobs:
   build-and-maybe-push:
-    runs-on: [docker]  # ou o label que seu runner 
-
+    runs-on: [docker]  # ou o label que seu r
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # - name: Checkout code
+      #   uses: actions/checkout@v4
 
       - name: Set DO_PUSH flag (push só na branch main)
         id: setflag
