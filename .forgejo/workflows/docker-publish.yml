@@ -1,34 +1,51 @@
 name: Build and Publish Docker Image
 
 on:
+  # 1) Builda sempre que tiver PR contra main (valida se compila)
+  # pull_request:
+  #   branches: ["main"]
+  #   types: [opened, synchronize, reopened]
+
+  # 2) Depois que o PR for mergeado, isso vira um commit em main.
+  # Nesse push na main a gente publica.
   push:
-    branches:
-      - main
-      - master
+    branches: ["main"]
+
+env:
+  IMAGE_NAME: forgejo.seudominio.com/seu-usuario/sua-imagem    # TODO ajustar
+  TAG: latest                                                 # ou usa SHA, versão etc.
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
+  build-and-maybe-push:
+    runs-on: [docker]  # ou o label que seu runner 
 
     steps:
       - name: Checkout code
-        uses: https://github.com/actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Set DO_PUSH flag (push só na branch main)
+        id: setflag
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "do_push=true" >> $GITHUB_OUTPUT
+          else
+            echo "do_push=false" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
 
       - name: Build Docker image
         run: |
-          docker build -t aplicacao-rust:latest .
-          docker tag aplicacao-rust:latest aplicacao-rust:$GITHUB_SHA
+          docker build -t $IMAGE_NAME:$TAG .
+        shell: bash
 
-      - name: Login to registry
+      - name: Login in registry
+        if: steps.setflag.outputs.do_push == 'true'
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login -u ${{ github.actor }} --password-stdin ${{ github.server_url }}
+          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login localhost:3000 -u "${{ secrets.REGISTRY_USER }}" --password-stdin
+        shell: bash
 
-      - name: Tag and push image
+      - name: Push image
+        if: steps.setflag.outputs.do_push == 'true'
         run: |
-          SERVER=$(echo "${{ github.server_url }}" | sed 's|https://||' | sed 's|http://||')
-          IMAGE="${SERVER}/${{ github.repository_owner }}/aplicacao-rust"
-
-          docker tag aplicacao-rust:latest ${IMAGE}:latest
-          docker push ${IMAGE}:latest
-
-          echo "Image pushed: ${IMAGE}:latest"
+          docker push $IMAGE_NAME:$TAG
+        shell: bash
