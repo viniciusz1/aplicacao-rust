@@ -20,12 +20,11 @@ jobs:
     runs-on: docker # ou o label que seu r
     container:
       image: docker:latest
-      # volumes:
-      #   - /var/run/docker.sock:/var/run/docker.sock
+      volumes: # <-- DESCOMENTE ISSO
+        - /var/run/docker.sock:/var/run/docker.sock # <-- E ISSO
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v4
-
+      - name: Checkout code
+        uses: actions/checkout@v4 # <-- VOCÊ PRECISA DISSO!
       - name: Set DO_PUSH flag (push só na branch main)
         id: setflag
         run: |
