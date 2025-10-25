@@ -48,7 +48,7 @@ jobs:
         shell: sh
 
       - name: Build Docker image
-        # Substitui a 'docker/build-push-action' (parte de build)
+        # Substitui a 'docker/build-push-action' (parte de build
         # Removemos o 'setup-buildx' e usamos o build padrão
         run: |
           echo "Building image ${{ env.IMAGE_TAG }}..."
