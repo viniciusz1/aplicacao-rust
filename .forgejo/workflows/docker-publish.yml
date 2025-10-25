@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: forgejo/aplicacao-rust
   
   # A tag completa está correta
-  IMAGE_TAG: server:3000/forgejo/aplicacao-rust:latest
+  IMAGE_TAG: http://server:3000/forgejo/aplicacao-rust:latest
 
 jobs:
   build-and-push:
