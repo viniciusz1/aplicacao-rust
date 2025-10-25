@@ -5,44 +5,30 @@ on:
     branches:
       - main
       - master
-    tags:
-      - "v*"
-
-env:
-  IMAGE_NAME: aplicacao-rust
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Docker
-        run: |
-          docker --version
+      - name: Checkout code
+        uses: https://github.com/actions/checkout@v3
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} .
-          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.IMAGE_NAME }}:latest
+          docker build -t aplicacao-rust:latest .
+          docker tag aplicacao-rust:latest aplicacao-rust:$GITHUB_SHA
 
-      - name: Log in to Container Registry
-        if: github.event_name != 'pull_request'
+      - name: Login to registry
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login -u ${{ github.actor }} --password-stdin ${{ github.server_url }}
 
-      - name: Push Docker image
-        if: github.event_name != 'pull_request'
+      - name: Tag and push image
         run: |
-          REGISTRY_URL=$(echo "${{ github.server_url }}" | sed 's|https://||' | sed 's|http://||')
-          FULL_IMAGE_NAME="${REGISTRY_URL}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}"
+          SERVER=$(echo "${{ github.server_url }}" | sed 's|https://||' | sed 's|http://||')
+          IMAGE="${SERVER}/${{ github.repository_owner }}/aplicacao-rust"
 
-          docker tag ${{ env.IMAGE_NAME }}:latest ${FULL_IMAGE_NAME}:latest
-          docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${FULL_IMAGE_NAME}:${{ github.sha }}
+          docker tag aplicacao-rust:latest ${IMAGE}:latest
+          docker push ${IMAGE}:latest
 
-          docker push ${FULL_IMAGE_NAME}:latest
-          docker push ${FULL_IMAGE_NAME}:${{ github.sha }}
-
-          echo "✅ Imagem publicada: ${FULL_IMAGE_NAME}:latest"
+          echo "Image pushed: ${IMAGE}:latest"
