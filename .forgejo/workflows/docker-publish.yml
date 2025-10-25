@@ -7,7 +7,7 @@ on:
 env:
   # Use o registry do seu Forgejo. Geralmente é o próprio domínio
   REGISTRY: localhost:3000
-  IMAGE_NAME: forgejo/aplicacao-rust # O registry será prefixado automaticamente
+  IMAGE_NAME: forgejo/aplicacao-rust # O registry será prefixado automaticmente
 
 jobs:
   build-and-push:
