@@ -38,7 +38,7 @@ jobs:
             
             # Remove a configuração de autenticação para não vazar
             git config --global --unset http.extraHeader
-          shell: sh
+        shell: sh
 
       - name: Login to Forgejo Registry
         # Substitui a 'docker/login-action'
