@@ -28,8 +28,8 @@ jobs:
           password: dckr_pat_16ur0fiCce7pGosFUVoQuoIYicY
 
       - name: Construir e publicar a imagem
-        # Esta ação usa o Docker do host para construir e enviar 
-        
+        # Esta ação usa o Docker do host para construir e envia
+
         uses: docker/build-push-action@v4
         with:
           context: .
