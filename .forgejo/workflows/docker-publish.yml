@@ -30,9 +30,9 @@ jobs:
           echo "Docker daemon is ready."
 
       - name: Set up Docker Buildx
-        # Garante que o builder DIND (Docker-in-Docker) esteja pronto
+        # Garante que o builder DIND (Docker-in-Docker) esteja pront
         run: docker buildx create --use --name mybuilder || true
-        
+
       - name: Login no Docker Hub (Manual)=      
         run: |
           echo "Logando no Docker Hub..."
