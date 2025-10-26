@@ -17,7 +17,7 @@ jobs:
 
             echo "Cloning repository..."
             git config --global http.extraHeader "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
-            git clone --depth=1 --branch ${{ github.ref_name }} ${{ github.server_url }}/${{ github.repository }} .
+            git clone --depth=1 --branch ${{ github.ref_name }} http://localhost:3000/forgejo/aplicacao-rust.git
             git config --global --unset http.extraHeader
         shell: sh
 
