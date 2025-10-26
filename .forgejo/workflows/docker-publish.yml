@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main"]
 
-# O bloco 'env' foi mo
+# O bloco 'env' foi m
 
 jobs:
   build-and-push:
