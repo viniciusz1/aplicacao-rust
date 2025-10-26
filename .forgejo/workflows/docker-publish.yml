@@ -10,7 +10,7 @@ jobs:
   build-and-push:
     runs-on: docker
 
-    # ...para dentro do job, para que possamos usar 'variables'
+    # ...para dentro do job, para que possamos usar 'variables
     env:
       IMAGE_NAME: forgejo/aplicacao-rust
       # A tag agora é construída usando a variável do UI
