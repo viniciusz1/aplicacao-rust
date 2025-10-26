@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: docker
+    runs-on: forgejo-runner
 
     # ...para dentro do job, para que possamos usar 'variables
     env:
