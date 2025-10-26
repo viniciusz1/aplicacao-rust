@@ -27,7 +27,7 @@ jobs:
             git config --global --unset http.extraHeader
         shell: sh
 
-      - name: Login no Registry (ex: Docker Hub)
+      - name: Login no Registry (ex Docker Hub)
         uses: docker/login-action@v2
         with:
           username: viniciusbonatti
