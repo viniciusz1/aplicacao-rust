@@ -21,8 +21,19 @@ jobs:
             git config --global --unset http.extraHeader
         shell: sh
 
-      - name: Login no Docker Hub (Manual)=
-      
+      - name: Wait for Docker Daemon (DIND)
+        # ADICIONADO: Espera o daemon do Docker-in-Docker iniciar
+        run: |
+          echo "Waiting for Docker-in-Docker daemon..."
+          timeout 30s sh -c "until docker info > /dev/null 2>&1; do echo -n .; sleep 1; done"
+          echo
+          echo "Docker daemon is ready."
+
+      - name: Set up Docker Buildx
+        # Garante que o builder DIND (Docker-in-Docker) esteja pronto
+        run: docker buildx create --use --name mybuilder || true
+        
+      - name: Login no Docker Hub (Manual)=      
         run: |
           echo "Logando no Docker Hub..."
           # Este é o comando shell equivalente ao 'docker/login-action'
