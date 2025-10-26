@@ -11,15 +11,17 @@ jobs:
     runs-on: docker
 
     steps:
-      - name: Checkout code (Manual)
-        run: |
-            echo "Cleaning workspace..."
+      # - name: Checkout code (Manual)
+      #   run: |
+      #       echo "Cleaning workspace..."
 
-            echo "Cloning repository..."
-            git config --global http.extraHeader "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
-            git clone --depth=1 --branch ${{ github.ref_name }} http://localhost:3000/forgejo/aplicacao-rust.git
-            git config --global --unset http.extraHeader
-        shell: sh
+      #       echo "Cloning repository..."
+      #       git config --global http.extraHeader "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+      #       git clone --depth=1 --branch ${{ github.ref_name }} http://localhost:3000/forgejo/aplicacao-rust.git
+      #       git config --global --unset http.extraHeader
+      #   shell: sh
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Login no Docker Hub (Manual)
         run: |
