@@ -32,6 +32,4 @@ jobs:
         run: |
           echo "Construindo e publicando imagem..."
           # Este é o comando shell equivalente ao 'docker/build-push-action'
-          docker buildx build --push \
-            --tag viniciusbonatti/aplicacao-rust:latest \
-            --platform linux/amd64,linux/arm64 \
+          docker buildx build --push  --tag viniciusbonatti/aplicacao-rust:latest --platform linux/amd64,linux/arm64 
