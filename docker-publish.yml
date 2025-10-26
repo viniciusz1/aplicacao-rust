@@ -11,7 +11,7 @@ env:
 
 jobs:
   build-and-push:
-    runs-on: docker # ou o label do seu runner com Docker instal
+    runs-on: docker # ou o label do seu runner com Docker insta
     
     steps:
       - name: Checkout code
