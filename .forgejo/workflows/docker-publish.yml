@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: forgejo-runner
+    runs-on: 
 
     # ...para dentro do job, para que possamos usar 'variables
     env:
@@ -27,24 +27,17 @@ jobs:
             git config --global --unset http.extraHeader
         shell: sh
 
-      - name: Login to Forgejo Registry
-        run: |
-          # Restaurado conforme sua solicitação
-          echo "Logging into ${{ variables.REGISTRY_SERVER_URL }}..."
-          echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login ${{ variables.REGISTRY_SERVER_URL }} -u "${{ secrets.REGISTRY_USER }}" --password-stdin
-        shell: sh
+      - name: Login no Registry (ex: Docker Hub)
+        uses: docker/login-action@v2
+        with:
+          username: viniciusbonatti
+          password: dckr_pat_0C4NR2WJ-qh20QlgRrGhqTvIVUc
 
-      - name: Build Docker image
-        run: |
-          # Esta etapa agora usa a IMAGE_TAG construída com sua variável
-          echo "Building image ${{ env.IMAGE_TAG }}..."
-          docker build -t ${{ env.IMAGE_TAG }} -f ./Dockerfile .
-        shell: sh
-
-      - name: Push image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          echo "Pushing image ${{ env.IMAGE_TAG }}..."
-          docker push ${{ env.IMAGE_TAG }}
-        shell: sh
+      - name: Construir e publicar a imagem
+        # Esta ação usa o Docker do host para construir e enviar a imagem
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: seu-usuario/sua-imagem:latest
 
