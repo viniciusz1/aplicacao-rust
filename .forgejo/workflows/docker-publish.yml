@@ -27,19 +27,6 @@ jobs:
             git config --global --unset http.extraHeader
         shell: sh
 
-      # --- NOVO PASSO ADICIONADO ---
-      - name: Wait for Docker (dind)
-        run: |
-          echo "Waiting for Docker daemon (dind) to start..."
-          # Espera em loop até que o comando 'docker info'
-          # funcione, indicando que o daemon está pronto.
-          while ! docker info > /dev/null 2>&1; do
-            echo -n "."
-            sleep 1
-          done
-          echo "Docker daemon is ready!"
-        shell: sh
-
       - name: Login to Forgejo Registry
         run: |
           # Restaurado conforme sua solicitação
