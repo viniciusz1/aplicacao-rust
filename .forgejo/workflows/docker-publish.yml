@@ -4,7 +4,7 @@ on:
   push:
     branches: ["main"]
 
-# O bloco 'env' foi movido daqui...
+# O bloco 'env' foi movido daqui..
 
 jobs:
   build-and-push:
@@ -21,18 +21,17 @@ jobs:
             git config --global --unset http.extraHeader
         shell: sh
 
-      - name: Login no Registry (ex Docker Hub)
-        uses: docker/login-action@v2
-        with:
-          username: viniciusbonatti
-          password: dckr_pat_16ur0fiCce7pGosFUVoQuoIYicY
+      - name: Login no Docker Hub (Manual)=
+      
+        run: |
+          echo "Logando no Docker Hub..."
+          # Este é o comando shell equivalente ao 'docker/login-action'
+          echo dckr_pat_16ur0fiCce7pGosFUVoQuoIYicY | docker login -u viniciusbonatti --password-stdin
 
-      - name: Construir e publicar a imagem
-        # Esta ação usa o Docker do host para construir e env
-
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: viniciusbonatti/aplicacao-rust:latest
-
+      - name: Construir e publicar a imagem (Manual)
+        run: |
+          echo "Construindo e publicando imagem..."
+          # Este é o comando shell equivalente ao 'docker/build-push-action'
+          docker buildx build --push \
+            --tag viniciusbonatti/aplicacao-rust:latest \
+            --platform linux/amd64,linux/arm64 \

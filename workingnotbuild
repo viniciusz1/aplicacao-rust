@@ -1,0 +1,37 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    branches: ["main"]
+
+# O bloco 'env' foi movido daqui...
+
+jobs:
+  build-and-push:
+    runs-on: docker
+
+    steps:
+      - name: Checkout code (Manual)
+        run: |
+            echo "Cleaning workspace..."
+
+            echo "Cloning repository..."
+            git config --global http.extraHeader "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+            git clone --depth=1 --branch ${{ github.ref_name }} ${{ github.server_url }}/${{ github.repository }} .
+            git config --global --unset http.extraHeader
+        shell: sh
+
+      - name: Login no Registry (ex Docker Hub)
+        uses: docker/login-action@v2
+        with:
+          username: viniciusbonatti
+          password: dckr_pat_16ur0fiCce7pGosFUVoQuoIYicY
+
+      - name: Construir e publicar a imagem
+        # Esta ação usa o Docker do host para construir e env
+
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: viniciusbonatti/aplicacao-rust:latest
