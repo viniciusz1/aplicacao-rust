@@ -1,0 +1,39 @@
+# Configuração do rustfmt para o projeto
+# https://rust-lang.github.io/rustfmt/
+
+# Número máximo de caracteres por linha
+max_width = 100
+
+# Tamanho da indentação
+tab_spaces = 4
+
+# Usar hard tabs ao invés de espaços
+hard_tabs = false
+
+# Adicionar linha em branco no final do arquivo
+newline_style = "Unix"
+
+# Organizar imports
+reorder_imports = true
+
+# Agrupar imports
+imports_granularity = "Crate"
+
+# Formatar strings longas
+format_strings = true
+
+# Espaço após os dois pontos em type annotations
+space_after_colon = true
+
+# Espaço antes dos dois pontos em type annotations
+space_before_colon = false
+
+# Uso de trailing commas
+trailing_comma = "Vertical"
+
+# Comentários e documentação
+wrap_comments = true
+comment_width = 80
+
+# Estilo de controle de fluxo
+control_brace_style = "AlwaysSameLine"

@@ -1,0 +1,81 @@
+# Pipeline CI/CD para aplicação Rust
+# Executa testes automaticamente em merge requests e pushs
+
+# Define os estágios do pipeline
+stages:
+  - test
+  - build
+
+# Cache de dependências para acelerar builds
+.cache_template: &cache_config
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - target/
+      - .cargo/
+
+# Job de testes
+test:
+  stage: test
+  image: rust:latest
+  <<: *cache_config
+  before_script:
+    - rustc --version
+    - cargo --version
+  script:
+    # Executa os testes
+    - cargo test --verbose
+    # Verifica formatação do código
+    - rustup component add rustfmt
+    - cargo fmt -- --check
+    # Executa o clippy (linter)
+    - rustup component add clippy
+    - cargo clippy -- -D warnings
+  rules:
+    # Executa em merge requests
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Executa em pushs para a branch main
+    - if: $CI_COMMIT_BRANCH == "main"
+    # Executa em pushs para outras branches
+    - if: $CI_COMMIT_BRANCH
+
+# Job de build
+build:
+  stage: build
+  image: rust:latest
+  <<: *cache_config
+  before_script:
+    - rustc --version
+    - cargo --version
+  script:
+    # Compila em modo release
+    - cargo build --release --verbose
+  artifacts:
+    paths:
+      - target/release/aplicacao-rust
+    expire_in: 1 week
+  rules:
+    # Executa apenas em merge requests e na branch main
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+
+# Job opcional para cobertura de código (requer tarpaulin)
+coverage:
+  stage: test
+  image: rust:latest
+  <<: *cache_config
+  before_script:
+    - cargo install cargo-tarpaulin
+  script:
+    - cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
+  coverage: '/^\d+.\d+% coverage/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+  rules:
+    # Executa apenas em merge requests e na branch main
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == "main"
+  allow_failure: true
